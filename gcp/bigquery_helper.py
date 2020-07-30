@@ -32,10 +32,12 @@ class BigQueryClient():
         logger.info("Loaded {} rows.".format(table.num_rows))
 
     def write_query_results(self, sql, dataset, table):
+        logging.debug(f"Execute query\n{sql}")
         conn = self.get_conn()
         job_config = bigquery.QueryJobConfig(
             destination=f"{self.project_id}.{dataset}.{table}", use_legacy_sql=False)
         job_config.write_disposition = bigquery.WriteDisposition.WRITE_TRUNCATE
+        job_config.default_dataset = f"{self.project_id}.{dataset}"
         query_job = conn.query(sql, job_config=job_config)
         query_job.result()
-        logger.info("Query results loaded to the table {}".format(table))
+        logger.info(f"Query results loaded to the table {table}")
