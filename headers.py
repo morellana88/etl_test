@@ -12,3 +12,9 @@ product_detail = [
     'aisle', 
     'product_number'
 ]
+
+products = [
+    'product_name',
+    'aisle',
+    'department'
+]
