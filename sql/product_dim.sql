@@ -1,4 +1,4 @@
-SELECT
+SELECT DISTINCT
     FARM_FINGERPRINT(product_name) product_key,
     product_name,
     aisle,
