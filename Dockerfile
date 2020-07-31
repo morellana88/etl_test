@@ -8,8 +8,9 @@ ARG GCP_PROJECT_ID
 ARG GCS_BUCKET
 ARG BQ_DATASET
 ARG GCP_SERVICE_ACCOUNT
+ARG LOG_LEVEL
 
-ENV LOG_LEVEL INFO
+ENV LOG_LEVEL LOG_LEVEL
 ENV LOG_FORMAT %(asctime)s %(levelname)s %(threadName)s %(name)s %(message)s
 ENV GCP_PROJECT_ID $GCP_PROJECT_ID
 ENV GCS_BUCKET $GCP_PROJECT_ID
@@ -28,4 +29,9 @@ RUN apt-get update && \
 COPY . /etl_test
 COPY ${GCP_SERVICE_ACCOUNT} .
 WORKDIR /etl_test
+
+# Install python dependencies
 RUN pip install -r requirements.txt
+
+# Create volume to process the local files
+RUN mkdir /data
