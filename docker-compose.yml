@@ -1,0 +1,27 @@
+version: '3.7'
+services: 
+    run_pipeline:
+        build: 
+            context: .
+            dockerfile: Dockerfile
+            args: 
+                GCP_SERVICE_ACCOUNT: ${GCP_SERVICE_ACCOUNT}
+        environment: 
+            - GCP_PROJECT_ID=${GCP_PROJECT_ID}
+            - GCS_BUCKET=${GCS_BUCKET}
+            - BQ_DATASET=${BQ_DATASET}
+            - LOG_LEVEL=${LOG_LEVEL}
+        volumes:
+            # Change for any other directory if needed
+            - ./data:/data
+        command: >
+            sh -c "
+                python extract_and_transform.py --table order_details --filename /data/dataset.csv --gcs_object orders/order_details.parquet &&
+                python extract_and_transform.py --table products --filename /data/products.json --gcs_object orders/products.parquet &&
+                python load_parquet_to_bq.py --gcs_object orders/order_details.parquet --table order_details &&
+                python load_parquet_to_bq.py --gcs_object orders/products.parquet --table products &&
+                python write_query_results.py --table hour_dim --sql sql/hour_dim.sql &&
+                python write_query_results.py --table day_dim --sql sql/day_dim.sql &&
+                python write_query_results.py --table product_dim --sql sql/product_dim.sql &&
+                python write_query_results.py --table hourly_orders_fact --sql sql/hourly_orders_fact.sql
+            "
